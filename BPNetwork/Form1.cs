@@ -92,56 +92,73 @@ namespace BPNetwork
         {
             try
             {
+                double[] tmp = new double[20];
                 //学习率
                 double lr = Double.Parse(this.txtLearnRate.Text.Trim());
 
                 //定义BP神经网络类
                 BpNet bp = new BpNet(400, 10);
 
-                //共1000个样本，每个样本数据有400个字节
-                double[,] input = new double[1000, 400];
-                double[,] output = new double[1000, 10];
+                //数据字典
+                Dictionary<string, int> filedictionary = new Dictionary<string, int>();
 
                 for (int i = 0; i < 10; i++)
                 {
                     string dir = train_path + @"\" + i + @"\";
                     string[] files = Directory.GetFiles(dir);
-
-                    for (int j = 0; j < 100; j++)
+                    foreach (string item in files)
                     {
-                        Bitmap bmp = new Bitmap(files[j]);
-                        for (int k = 0; k < 20; k++)
-                        {
-                            for (int l = 0; l < 20; l++)
-                            {
-                                input[i * 100 + j, k * 20 + l] = bmp.GetPixel(k, l).R;
-                            }
-                        }
-
-                        //交换行，因为位图存储时，先存储最后一行，从图片的底部开始，逐渐向上扫描
-                        for (int k = 0; k < bmp.Height / 2; k++)
-                        {
-                            for (int l = 0; l < bmp.Width; l++)
-                            {
-                                tmp[l] = input[k * bmp.Width + l];
-                                input[k * bmp.Width + l] = input[(bmp.Height - 1 - k) * bmp.Width + l];
-                                input[(bmp.Height - 1 - k) * bmp.Width + l] = tmp[l];
-                            }
-                        }
-
-                        output[i * 100 + j, i] = 1;//第j个图片被分为第i类
+                        filedictionary.Add(item, i);
                     }
-                    this.lblMessage.Text = "正在读取第" + (i + 1) + "个训练样本数据";
                 }
 
-                int study = 0;
+                //声明数据存储区域
+                double[,] input = new double[filedictionary.Count, 400];
+                double[,] output = new double[filedictionary.Count, 10];
+
+                int count = 0;//计数器
+                int study = 0;//学习（训练）次数
+
+                //数据装载
+                foreach (KeyValuePair<string, int> item in filedictionary)
+                {
+                    Bitmap bmp = new Bitmap(item.Key);
+
+                    for (int k = 0; k < bmp.Height; k++)
+                    {
+                        for (int l = 0; l < bmp.Width; l++)
+                        {
+                            input[count, k * bmp.Width + l] = bmp.GetPixel(l, k).R;
+                        }
+                    }
+
+                    //交换行，因为位图存储时，先存储最后一行，从图片的底部开始，逐渐向上扫描
+                    for (int k = 0; k < bmp.Height / 2; k++)
+                    {
+                        for (int l = 0; l < bmp.Width; l++)
+                        {
+                            tmp[l] = input[count, k * bmp.Width + l];
+                            input[count, k * bmp.Width + l] = input[count, (bmp.Height - 1 - k) * bmp.Width + l];
+                            input[count, (bmp.Height - 1 - k) * bmp.Width + l] = tmp[l];
+                        }
+                    }
+
+                    output[count, item.Value] = 1;//第j个图片被分为第i类
+                    count++;
+                }
+
                 do
                 {
                     if (!bw.CancellationPending)//2.检测用户是否取消
                     {
-                        study++;
+                        //训练
                         bp.train(input, output, lr);
+                        study++;
                         this.lblMessage.Text = "第" + study + "次训练的误差： " + bp.e;
+                    }
+                    else
+                    {
+                        break;//停止训练
                     }
                 } while (bp.e > 0.01 && study < 50000);
 
