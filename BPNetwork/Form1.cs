@@ -90,18 +90,19 @@ namespace BPNetwork
 
         private void Bw_DoWork(object sender, DoWorkEventArgs e)
         {
+            //定义BP神经网络类
+            BpNet bp = new BpNet(400, 10);
+            double[] tmp = new double[20];
+
             try
             {
-                double[] tmp = new double[20];
                 //学习率
                 double lr = Double.Parse(this.txtLearnRate.Text.Trim());
-
-                //定义BP神经网络类
-                BpNet bp = new BpNet(400, 10);
+                int count = 0;//计数器
+                int study = 0;//学习（训练）次数
 
                 //数据字典
                 Dictionary<string, int> filedictionary = new Dictionary<string, int>();
-
                 for (int i = 0; i < 10; i++)
                 {
                     string dir = train_path + @"\" + i + @"\";
@@ -115,9 +116,6 @@ namespace BPNetwork
                 //声明数据存储区域
                 double[,] input = new double[filedictionary.Count, 400];
                 double[,] output = new double[filedictionary.Count, 10];
-
-                int count = 0;//计数器
-                int study = 0;//学习（训练）次数
 
                 //数据装载
                 foreach (KeyValuePair<string, int> item in filedictionary)
@@ -161,15 +159,17 @@ namespace BPNetwork
                         break;//停止训练
                     }
                 } while (bp.e > 0.01 && study < 50000);
-
-                bp.saveMatrix(bp.w, "w.txt");
-                bp.saveMatrix(bp.v, "v.txt");
-                bp.saveMatrix(bp.b1, "b1.txt");
-                bp.saveMatrix(bp.b2, "b2.txt");
             }
             catch (Exception ex)
             {
                 MessageBox.Show("出错了" + ex.Message);
+            }
+            finally//出错或者中途取消也会保存权值矩阵的信息
+            {
+                bp.saveMatrix(bp.w, "w.txt");
+                bp.saveMatrix(bp.v, "v.txt");
+                bp.saveMatrix(bp.b1, "b1.txt");
+                bp.saveMatrix(bp.b2, "b2.txt");
             }
         }
 
