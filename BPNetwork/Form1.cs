@@ -117,6 +117,18 @@ namespace BPNetwork
                                 input[i * 100 + j, k * 20 + l] = bmp.GetPixel(k, l).R;
                             }
                         }
+
+                        //交换行，因为位图存储时，先存储最后一行，从图片的底部开始，逐渐向上扫描
+                        for (int k = 0; k < bmp.Height / 2; k++)
+                        {
+                            for (int l = 0; l < bmp.Width; l++)
+                            {
+                                tmp[l] = input[k * bmp.Width + l];
+                                input[k * bmp.Width + l] = input[(bmp.Height - 1 - k) * bmp.Width + l];
+                                input[(bmp.Height - 1 - k) * bmp.Width + l] = tmp[l];
+                            }
+                        }
+
                         output[i * 100 + j, i] = 1;//第j个图片被分为第i类
                     }
                     this.lblMessage.Text = "正在读取第" + (i + 1) + "个训练样本数据";
