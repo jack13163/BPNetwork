@@ -380,11 +380,11 @@ namespace BPNetwork
         public void saveMatrix(double[,] w, string filename)
         {
             StreamWriter sw = File.CreateText(filename);
-            for (int i = 0; i < w.GetLength(0); i++)
+            for (int i = 0; i < w.GetLength(1); i++)
             {
-                for (int j = 0; j < w.GetLength(1); j++)
+                for (int j = 0; j < w.GetLength(0); j++)
                 {
-                    sw.Write(w[i, j] + " ");
+                    sw.Write(w[j, i].ToString("0.000000000000000") + " ");
                 }
                 sw.WriteLine();
             }
@@ -427,7 +427,7 @@ namespace BPNetwork
                     string[] s1 = line.Trim().Split(' ');
                     for (int j = 0; j < s1.Length; j++)
                     {
-                        w[i, j] = Convert.ToDouble(s1[j]);
+                        w[j, i] = Convert.ToDouble(s1[j]);
                     }
                     i++;
                 }

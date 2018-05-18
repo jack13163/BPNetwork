@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -172,6 +173,7 @@ namespace BPNetwork
 
                 int right_count = 0;
                 string[] files;
+                double[] tmp = new double[20];
                 //读取文件
                 for (int i = 0; i < 10; i++)
                 {
@@ -186,13 +188,26 @@ namespace BPNetwork
                     for (int j = 0; j < files.Length; j++)
                     {
                         Bitmap bmp = new Bitmap(files[j]);
-                        for (int k = 0; k < 20; k++)
+
+                        for (int k = 0; k < bmp.Height; k++)
                         {
-                            for (int l = 0; l < 20; l++)
+                            for (int l = 0; l < bmp.Width; l++)
                             {
-                                input[k * 20 + l] = bmp.GetPixel(k, l).R;
+                                input[k * bmp.Width + l] = bmp.GetPixel(l, k).R;
                             }
                         }
+
+                        //交换行，因为位图存储时，先存储最后一行，从图片的底部开始，逐渐向上扫描
+                        for (int k = 0; k < bmp.Height / 2; k++)
+                        {
+                            for (int l = 0; l < bmp.Width; l++)
+                            {
+                                tmp[l] = input[k * bmp.Width + l];
+                                input[k * bmp.Width + l] = input[(bmp.Height - 1 - k) * bmp.Width + l];
+                                input[(bmp.Height - 1 - k) * bmp.Width + l] = tmp[l];
+                            }
+                        }
+
                         if (i == bp.test(input))
                         {
                             right_count++;
