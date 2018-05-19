@@ -170,6 +170,7 @@ namespace BPNetwork
                 bp.saveMatrix(bp.v, "v.txt");
                 bp.saveMatrix(bp.b1, "b1.txt");
                 bp.saveMatrix(bp.b2, "b2.txt");
+                this.lblMessage.Text = "训练终止！";
             }
         }
 
@@ -245,7 +246,7 @@ namespace BPNetwork
 
                     this.lbTestResult.Items.Add(files.Length + "个" + i + "样本识别成功率：" + (1.0 * right_count / files.Length * 100).ToString("0.00") + "%");
                 }
-                this.lblMessage.Text = "训练成功";
+                this.lblMessage.Text = "测试成功！";
             }
             catch (Exception ex)
             {

@@ -325,6 +325,7 @@ namespace BPNetwork
                 {
                     o1[j] += w[i, j] * x[i];
                 }
+
                 x1[j] = 1.0 / (1.0 + Math.Exp(-o1[j] - b1[j]));
             }
 
@@ -454,11 +455,13 @@ namespace BPNetwork
                 sr = new StreamReader(filename, Encoding.GetEncoding("gb2312"));
 
                 String line;
-                int i = 0;
-                while ((line = sr.ReadLine()) != null)
+                if ((line = sr.ReadLine()) != null)
                 {
-                    b[i] = Convert.ToDouble(line);
-                    i++;
+                    string[] strs = line.Trim().Split(' ');
+                    for (int i = 0; i < strs.Length; i++)
+                    {
+                        b[i] = Convert.ToDouble(strs[i]);
+                    }
                 }
                 sr.Close();
 
